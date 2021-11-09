@@ -1,0 +1,157 @@
+%This is my super simple NLP Homework template
+
+\documentclass{article}
+
+
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\newcommand{\reals}{{\mbox{\bf R}}}
+\newcommand{\dom}{{\mbox{\bf dom}}}
+\newcommand{\var}{{\mbox{\bf var}}}
+\newcommand{\E}{{\mbox{\bf E}}}
+\newcommand{\tr}{{\mbox{\bf tr}}}
+\newcommand{\prob}{{\mbox{\bf prob}}}
+
+\usepackage[utf8]{inputenc}
+\usepackage[ruled,vlined]{algorithm2e}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+
+\lstset{style=mystyle}
+
+
+\usepackage[makeroom]{cancel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[]{amsthm} %lets us use \begin{proof}
+\usepackage[]{amssymb} %gives us the character \varnothing
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Tuguluke}
+\lhead{CSCI 5832  Homework 1 Part 2}
+\rfoot{Page \thepage} 
+
+\title{CSCI 5832  Homework 1 Part 2}
+\author{Tuguluke Abulitibu}
+\date{\today} 
+%This information doesn't actually show up on your document unless you use the maketitle command below
+
+\begin{document}
+	\maketitle %This command prints the title based on information entered above
+	\section*{How many words does BERT know?}	
+
+%	\subsection*{---You should structure your answer to specify how you interpreted ``how many", ``word", and what ``know" means. Be sure to discuss any potential issues with how your discussion aligns with the empirical method you employed.}
+I consider this task as a continuation of part 1. The answer is highly corelated to the definition of `word'\footnote{google.com}:
+	\begin{enumerate}
+		\item 	a single distinct meaningful element of speech or writing, used with others (or sometimes alone) to form a sentence and typically shown with a space on either side when written or printed.
+		\item a command, password, or signal.
+		
+	\end{enumerate}
+In part one, I did analysis on only one sample of text data (without considering any `command, password, or signal') and gave an estimate of how  many I know. In part 2, I will do more or less of a conversation with myself so to write down what I think I've leared about the denition of `word', so far.\\
+	\subsection*{Approach 1: Do nothing}
+	The text file loading shows it has 30522 entry, we can `argue' every character, every sign(signal), along with their `location', is unique, That gives us the original \textbf{30522}. If we run a unique function, that number will drop down to  \textbf{29498}, when we don't consider the repetition of words. 
+	
+		\subsection*{Approach 2: No 'emoji's}
+Athough we are in  the age of `emoji's, I still don't consider special characters as `words'.  Justing by simply 'stripping off' these formula, we can get the number down to \textbf{25975}.  
+	
+		\subsection*{Approach 3: Lemmatization}
+	Finally, I've decided to just focus on the meaning of `a single distinct meaningful element of speech or writing', the dictinctness, in my current openion, should dictates how many words BERT know. A good example (or bad) is the word `investigate'. Apparantly the text has 10 words corelate to this one, such as: investigate, investigated, invesigating, etc.  But the uniqueness should be in the `word  stem' itself, otherwise it would be any number that we imagine, hence we can find the diffrent tenses of each word and claim we simply multiple by that number with the number of unique words. Curently, I believe that Lemmatization should be as the threshhold of diffrent works. With that in mind, the number will count down to \textbf{21342}. I've also noticed  that some words has no meaning unless they are shorten for  something, works like 'sa' (sweden?), ti (Italian?). After getting rid of those the number drops down to \textbf{20974}. 
+	
+    I am sure there are no `correct answer' for this assignment since there are many more methods to counts (to refine), I am looking forward to learn more in this class. 
+		\subsection*{What's missing?}
+	When I was learning Russia, I thought I can just grasp the most of it by memorizing the words, what a disaster that was! I know nothing about a word until I can locate the work in a real sentence. Same rule should be applied here, BERT does not any words until it considered them through sentences. And that is the missing piece in this assignment, we need the 'know' the word contexually, that is, within a real sentence or a paragraph. So a better way for BERT to know each word should be from a collection of texts, not just line of words (although in this case we get rid of word like 'to', and 'am'. but there are not that many there in the first place).  
+	\subsection*{In conclusion: Purely numerically speaking}
+	{\color{blue}
+\begin{center}
+	\begin{tabular}{| l | r| }
+		\hline
+		Approach & Number of words \\ \hline
+		Do nothing &  30522  (29498 unique)\\ \hline
+		No 'emoji's&  25975 \\ \hline
+		 Lemmatization &  21342 (20974 if getting rid of 2 letter words) \\ \hline
+	\end{tabular}
+\end{center}
+}
+	\subsection*{Code snippet}
+\small
+\begin{lstlisting}[language=Python]
+# Transform text to lower case, remove unnecessary punctuation if present
+def regex_clean(text):
+	cleaned_text = re.sub(r"[^a-zA-z]", " ", text.lower())
+	return cleaned_text
+	
+def tokenize(text):
+
+	#Ensure type is string
+	text = str(text)
+	
+	#Make lower-case, remove punctuation and extra spaces, tokenize into words/phrases.
+	
+	#Use 'split' instead of 'word_tokenize' to have space
+	tokens = str.split(text, '::')
+	tokens = [regex_clean(tok) for tok in tokens]
+	
+	#Remove stopwords, 
+	tokens_no_stops = [tok.strip() for tok in tokens if tok.strip() not in all_stopwords]
+	
+	#Remove words with only 1 letter
+	tokens_large = [tok for tok in tokens_no_stops if len(tok)>1]
+	
+	#Initialize Word Lemmatizer
+	lemmatizer = WordNetLemmatizer()
+	
+	#Lemmatize
+	tokens_lemmatized = [lemmatizer.lemmatize(tok) for tok in tokens_large]
+	
+	return tokens_lemmatized
+\end{lstlisting}
+
+%  \begin{figure}[ht!]
+%	\centering
+%	\begin{minipage}{.5\textwidth}
+%		\centering
+%		\includegraphics[height=0.21\textheight,width=.8\linewidth]{categories.png}
+%		\caption{Row counts}
+%		
+%	\end{minipage}%
+%	\begin{minipage}{.5\textwidth}
+%		\centering
+%		\includegraphics[height=0.21\textheight,width=.8\linewidth]{word.png}
+%		\caption{Work counts}
+%		
+%	\end{minipage}
+%	
+%\end{figure}
+
+
+\end{document}
